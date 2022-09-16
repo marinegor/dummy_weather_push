@@ -40,7 +40,18 @@ class Loop:
             assert 0 <= mm <= 60, mm
             rv.append((hh, mm))
         self.report_checks_at = rv
+    
+    def next_hour_checks_string(self) -> str:
+        rv = []
+        for hh, mm in self.next_hour_checks_at:
+            rv.append(f'{hh:02}:{mm:02}')
+        return ', '.join(rv)
 
+    def report_checks_string(self) -> str:
+        rv = []
+        for hh, mm in self.report_checks_at:
+            rv.append(f'{hh:02}:{mm:02}')
+        return ', '.join(rv)
     
     def regular_is_triggered(self):
         now = datetime.now()
@@ -226,11 +237,18 @@ def main(args: List[str]):
     loop = Loop()
     weather = Weather()
     notifications = Notifications()
-    notifications.post(data=f'Started script at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    notifications.post(
+            data=(
+                f'Started script at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}\n'
+                f'Report checks at: {loop.report_checks_string()}\n'
+                f'Regular checks at: {loop.next_hour_checks_string()}'
+                )
+            )
     has_broken = False
     sleep = 60
 
     while True:
+        assert sleep >= 60, f"if sleep is less than 60, it will break the script logic and send notifications few times in a minute; you have {sleep}"
         try:
             if loop.report_is_triggered():
                 weather.check_report()
