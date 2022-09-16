@@ -64,16 +64,11 @@ def simplify_hour(h: dict) -> dict:
     rain = h.get('rain')
 
     rv = {}
-    if uvi > 2:
-        rv['UV'] = uvi
-    if temp < 15:
-        rv['COLD'] = int(temp)
-    if temp > 25:
-        rv['HOT'] = int(temp)
-    if wind > 5:
-        rv['WIND'] = int(wind)
-    if prob_rain > 0.5:
-        rv['PROB_RAIN'] = int(prob_rain*100)
+    rv['UV'] = uvi
+    rv['COLD'] = int(temp)
+    rv['HOT'] = int(temp)
+    rv['WIND'] = int(wind)
+    rv['PROB_RAIN'] = int(prob_rain*100)
     if rain and rain.get('1h') and rain.get('1h') > 0.2:
         rv['RAINDROPS'] = rain.get("1h")
 
@@ -177,8 +172,7 @@ class Weather:
         for hour_dict in next_day:
             hh = datetime.fromtimestamp(hour_dict['dt']).hour
             if hh < now.hour or hh >= last_hour: # already for tomorrow
-                # break 
-                pass
+                break 
             simple_dict = simplify_hour(hour_dict) 
             status = Status(simple_dict)
             hours.append((hh, status))
